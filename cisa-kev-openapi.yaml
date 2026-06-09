@@ -1,0 +1,57 @@
+# OpenAPI spec for the CISA KEV plugin.
+# Host at a public raw URL and reference from cisa-kev-plugin.yaml.
+#
+# NOTE: The KEV catalog is ~1,300+ entries and growing. The agent
+# instructions tell the orchestrator to extract only cveID values
+# immediately to keep context usage manageable. If you hit context
+# limits, replace this with a Logic App that returns only the CVE ID
+# array, or one that accepts your CVE list and returns matches.
+
+openapi: 3.0.1
+info:
+  title: CISA Known Exploited Vulnerabilities Catalog
+  description: Public feed of vulnerabilities confirmed exploited in the wild, maintained by CISA. Used to prioritize patching.
+  version: "1.0"
+servers:
+  - url: https://www.cisa.gov
+paths:
+  /sites/default/files/feeds/known_exploited_vulnerabilities.json:
+    get:
+      operationId: getKevCatalog
+      summary: Get the full CISA KEV catalog
+      description: >-
+        Returns the complete KEV catalog. Each entry includes cveID,
+        vendorProject, product, vulnerabilityName, dateAdded, dueDate, and
+        knownRansomwareCampaignUse. Extract only cveID values when the goal
+        is membership checking.
+      responses:
+        '200':
+          description: KEV catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  catalogVersion:
+                    type: string
+                  count:
+                    type: integer
+                  vulnerabilities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        cveID:
+                          type: string
+                        vendorProject:
+                          type: string
+                        product:
+                          type: string
+                        vulnerabilityName:
+                          type: string
+                        dateAdded:
+                          type: string
+                        dueDate:
+                          type: string
+                        knownRansomwareCampaignUse:
+                          type: string

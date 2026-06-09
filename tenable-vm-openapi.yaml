@@ -1,0 +1,91 @@
+# OpenAPI spec for the Tenable VM plugin.
+# Host this file at a public raw URL (e.g. GitHub Gist) and reference it
+# from tenable-vm-plugin.yaml > OpenApiSpecUrl.
+#
+# NOTE: This uses the synchronous /workbenches/vulnerabilities endpoint
+# (max 5000 findings, last 30 days by default) because Security Copilot
+# API skills can't drive Tenable's async /vulns/export job workflow
+# (request -> poll status -> download chunks). If you outgrow the
+# workbench cap, front the export API with a Logic App or Function instead.
+
+openapi: 3.0.1
+info:
+  title: Tenable Vulnerability Management
+  description: Retrieves current vulnerability findings from Tenable VM with VPR, CVSS, severity, and asset exposure data.
+  version: "1.0"
+servers:
+  - url: https://cloud.tenable.com
+paths:
+  /workbenches/vulnerabilities:
+    get:
+      operationId: listTenableVulnerabilities
+      summary: List current Tenable vulnerabilities
+      description: >-
+        Returns up to 5000 current vulnerability findings including plugin ID,
+        plugin name, severity, CVSS, VPR score, exploit availability, CVE
+        identifiers, and count of affected assets. Use the severity filter to
+        narrow results when needed.
+      parameters:
+        - name: date_range
+          in: query
+          required: false
+          description: Number of days of scan data to include (default 30).
+          schema:
+            type: integer
+            default: 30
+        - name: filter.0.filter
+          in: query
+          required: false
+          description: 'Optional filter field, e.g. severity'
+          schema:
+            type: string
+        - name: filter.0.quality
+          in: query
+          required: false
+          description: 'Filter operator, e.g. eq'
+          schema:
+            type: string
+        - name: filter.0.value
+          in: query
+          required: false
+          description: 'Filter value, e.g. Critical'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Vulnerability list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vulnerabilities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        plugin_id:
+                          type: integer
+                        plugin_name:
+                          type: string
+                        severity:
+                          type: integer
+                          description: 0 Info, 1 Low, 2 Medium, 3 High, 4 Critical
+                        vulnerability_state:
+                          type: string
+                        count:
+                          type: integer
+                          description: Number of affected asset instances
+                        cve:
+                          type: array
+                          items:
+                            type: string
+                        cvss_base_score:
+                          type: number
+                        vpr_score:
+                          type: number
+                          description: Tenable Vulnerability Priority Rating (0.1-10.0)
+                        exploit_available:
+                          type: boolean
+                  total_vulnerability_count:
+                    type: integer

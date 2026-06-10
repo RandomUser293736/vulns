@@ -1,0 +1,61 @@
+openapi: "3.0.3"
+info:
+  title: CISA Known Exploited Vulnerabilities
+  description: >-
+    Public catalog of CVEs known to be actively exploited in the wild,
+    maintained by the Cybersecurity and Infrastructure Security Agency.
+    No authentication required.
+  version: "1.0"
+servers:
+  - url: https://www.cisa.gov
+paths:
+  /sites/default/files/feeds/known_exploited_vulnerabilities.json:
+    get:
+      operationId: getKevCatalog
+      summary: Fetch the CISA KEV catalog
+      description: >-
+        Returns the full CISA Known Exploited Vulnerabilities catalog as JSON.
+        Caller should extract only the cveID field from each vulnerabilities
+        entry and discard all other fields to stay within context limits.
+      responses:
+        "200":
+          description: CISA KEV catalog
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  catalogVersion:
+                    type: string
+                  dateReleased:
+                    type: string
+                  count:
+                    type: integer
+                  vulnerabilities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        cveID:
+                          type: string
+                          description: CVE identifier (e.g. CVE-2021-44228)
+                        vendorProject:
+                          type: string
+                        product:
+                          type: string
+                        vulnerabilityName:
+                          type: string
+                        dateAdded:
+                          type: string
+                        shortDescription:
+                          type: string
+                        requiredAction:
+                          type: string
+                        dueDate:
+                          type: string
+                        knownRansomwareCampaignUse:
+                          type: string
+                        notes:
+                          type: string
